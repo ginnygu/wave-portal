@@ -11,6 +11,7 @@ function App() {
 	const [alertMessage, setAlertMessage] = useState("");
 	const [allWaves, setAllWaves] = useState([]);
 	const [message, setMessage] = useState("");
+	const [totalWaves, setTotalWaves] = useState(0);
 
 	const contractAddress = "0xaCdC5133B4D229A6b94A448bb9742a6Dca8dee1E";
 	const contractABI = abi.abi;
@@ -54,6 +55,7 @@ function App() {
 					});
 				});
 				setAllWaves(cleanedWaves);
+				setTotalWaves(waves.length);
 			} else {
 				setAlertMessage("Please connect to the wallet!");
 			}
@@ -68,25 +70,17 @@ function App() {
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
 				const signer = provider.getSigner();
-				console.log(signer);
 				const wavePortalContract = new ethers.Contract(
 					contractAddress,
 					contractABI,
 					signer
 				);
 
-				let count = await wavePortalContract.getTotalWaves();
-				console.log("Retrieved total wave count...", count.toNumber());
-
 				const waveTxn = await wavePortalContract.wave(message);
 				console.log(waveTxn);
-				console.log("Mining...", waveTxn.hash);
 
 				await waveTxn.wait();
-				console.log("mined --", waveTxn.hash);
 
-				count = await wavePortalContract.getTotalWaves();
-				console.log("Retrieved total wave count...", count.toNumber());
 				setMessage("");
 				getAllWaves();
 			} else {
@@ -103,11 +97,8 @@ function App() {
 				if (!ethereum) {
 					setAlertMessage("Please get Metamask!");
 					return;
-				} else {
-					console.log("We have an ethereum", ethereum);
 				}
 				const accounts = await ethereum.request({ method: "eth_accounts" });
-				console.log(accounts);
 				if (accounts.length !== 0) {
 					const account = await accounts[0];
 					setCurrentAccount(account);
@@ -120,7 +111,7 @@ function App() {
 		};
 		checkIfWalletIsConnected();
 		getAllWaves();
-	}, [contractABI, getAllWaves]);
+	}, [contractABI, getAllWaves, currentAccount]);
 
 	return (
 		<div className="App">
@@ -144,16 +135,19 @@ function App() {
 					<WaveBox message={message} setMessage={setMessage} wave={wave} />
 				)}
 			</div>
-			{allWaves === undefined ? (
+			{!currentAccount ? (
 				<p>Loading...</p>
 			) : (
-				<div className="wave-wrap">
-					{allWaves.map((wave) => (
-						<div className="wave" key={wave.timestamp.toString()}>
-							<AllWaves wave={wave} />
-						</div>
-					))}
-				</div>
+				<>
+					<p>We have a total of {totalWaves} waves</p>
+					<div className="wave-wrap">
+						{allWaves.map((wave) => (
+							<div className="wave" key={wave.timestamp.toString()}>
+								<AllWaves wave={wave} />
+							</div>
+						))}
+					</div>
+				</>
 			)}
 		</div>
 	);
