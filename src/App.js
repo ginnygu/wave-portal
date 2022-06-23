@@ -111,7 +111,6 @@ function App() {
 				if (accounts.length !== 0) {
 					const account = await accounts[0];
 					setCurrentAccount(account);
-					getAllWaves();
 				} else {
 					setAlertMessage("Please connect to the wallet!");
 				}
@@ -120,6 +119,7 @@ function App() {
 			}
 		};
 		checkIfWalletIsConnected();
+		getAllWaves();
 	}, [contractABI, getAllWaves]);
 
 	return (
