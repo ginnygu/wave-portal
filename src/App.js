@@ -144,11 +144,17 @@ function App() {
 					<WaveBox message={message} setMessage={setMessage} wave={wave} />
 				)}
 			</div>
-			<div className="wave-wrap">
-				{allWaves.map((wave) => (
-					<AllWaves wave={wave} />
-				))}
-			</div>
+			{allWaves === undefined ? (
+				<p>Loading...</p>
+			) : (
+				<div className="wave-wrap">
+					{allWaves.map((wave) => (
+						<div className="wave" key={wave.timestamp.toString()}>
+							<AllWaves wave={wave} />
+						</div>
+					))}
+				</div>
+			)}
 		</div>
 	);
 }
