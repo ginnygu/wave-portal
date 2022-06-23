@@ -1,38 +1,38 @@
-import './App.css';
-import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
-import abi from './utils/WavePortal.json';
-import WaveBox from './components/WaveBox';
-import AllWaves from './components/AllWaves';
+import "./App.css";
+import { useEffect, useState, useCallback } from "react";
+import { ethers } from "ethers";
+import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
+import abi from "./utils/WavePortal.json";
+import WaveBox from "./components/WaveBox";
+import AllWaves from "./components/AllWaves";
 
 function App() {
-	const [currentAccount, setCurrentAccount] = useState('');
-	const [alertMessage, setAlertMessage] = useState('');
+	const [currentAccount, setCurrentAccount] = useState("");
+	const [alertMessage, setAlertMessage] = useState("");
 	const [allWaves, setAllWaves] = useState([]);
-	const [message, setMessage] = useState('');
+	const [message, setMessage] = useState("");
 
-	const contractAddress = '0xaCdC5133B4D229A6b94A448bb9742a6Dca8dee1E';
+	const contractAddress = "0xaCdC5133B4D229A6b94A448bb9742a6Dca8dee1E";
 	const contractABI = abi.abi;
 
 	const connectWallet = async () => {
 		try {
 			const { ethereum } = window;
 			const accounts = await ethereum.request({
-				method: 'eth_requestAccounts',
+				method: "eth_requestAccounts",
 			});
 			if (accounts) {
-				setAlertMessage('');
+				setAlertMessage("");
 				setCurrentAccount(accounts[0]);
 			} else {
-				console.log('something went wrong');
+				console.log("something went wrong");
 			}
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	const getAllWaves = async () => {
+	const getAllWaves = useCallback(async () => {
 		try {
 			const { ethereum } = window;
 			if (ethereum) {
@@ -41,7 +41,7 @@ function App() {
 				const wavePortalContract = new ethers.Contract(
 					contractAddress,
 					contractABI,
-					signer,
+					signer
 				);
 				const waves = await wavePortalContract.getAllWaves();
 
@@ -53,15 +53,14 @@ function App() {
 						message: wave.message,
 					});
 				});
-				console.log(cleanedWaves);
 				setAllWaves(cleanedWaves);
 			} else {
-				setAlertMessage('Please connect to the wallet!');
+				setAlertMessage("Please connect to the wallet!");
 			}
 		} catch (error) {
 			console.log(error);
 		}
-	};
+	}, [contractABI]);
 
 	const wave = async () => {
 		try {
@@ -69,24 +68,26 @@ function App() {
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
 				const signer = provider.getSigner();
+				console.log(signer);
 				const wavePortalContract = new ethers.Contract(
 					contractAddress,
 					contractABI,
-					signer,
+					signer
 				);
 
 				let count = await wavePortalContract.getTotalWaves();
-				console.log('Retrieved total wave count...', count.toNumber());
+				console.log("Retrieved total wave count...", count.toNumber());
 
 				const waveTxn = await wavePortalContract.wave(message);
-				console.log('Mining...', waveTxn.hash);
+				console.log(waveTxn);
+				console.log("Mining...", waveTxn.hash);
 
 				await waveTxn.wait();
-				console.log('mined --', waveTxn.hash);
+				console.log("mined --", waveTxn.hash);
 
 				count = await wavePortalContract.getTotalWaves();
-				console.log('Retrieved total wave count...', count.toNumber());
-				setMessage('');
+				console.log("Retrieved total wave count...", count.toNumber());
+				setMessage("");
 				getAllWaves();
 			} else {
 				console.log("Ethereum object doesn't exist!");
@@ -100,26 +101,26 @@ function App() {
 			try {
 				const { ethereum } = window;
 				if (!ethereum) {
-					setAlertMessage('Please get Metamask!');
+					setAlertMessage("Please get Metamask!");
 					return;
 				} else {
-					console.log('We have an ethereum', ethereum);
+					console.log("We have an ethereum", ethereum);
 				}
-				const accounts = await ethereum.request({ method: 'eth_accounts' });
+				const accounts = await ethereum.request({ method: "eth_accounts" });
 				console.log(accounts);
 				if (accounts.length !== 0) {
 					const account = await accounts[0];
 					setCurrentAccount(account);
 					getAllWaves();
 				} else {
-					setAlertMessage('Please connect to the wallet!');
+					setAlertMessage("Please connect to the wallet!");
 				}
 			} catch (error) {
 				console.log(error);
 			}
 		};
 		checkIfWalletIsConnected();
-	}, [contractABI]);
+	}, [contractABI, getAllWaves]);
 
 	return (
 		<div className="App">
