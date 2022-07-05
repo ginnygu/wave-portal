@@ -13,7 +13,7 @@ function App() {
 	const [message, setMessage] = useState("");
 	const [totalWaves, setTotalWaves] = useState(0);
 
-	const contractAddress = "0xaCdC5133B4D229A6b94A448bb9742a6Dca8dee1E";
+	const contractAddress = "0xa660b07eBfe3445fFFf56dD35AEd2b495fE3D40a";
 	const contractABI = abi.abi;
 
 	const connectWallet = async () => {
