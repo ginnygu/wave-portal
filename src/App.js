@@ -129,7 +129,7 @@ function App() {
 				</h1>
 				<p>
 					I'm Ginny and new to the Web3 world. Connect your Ethereum wallet and
-					wave!
+					wave! Don't worry, we're not using real Ethereum!
 				</p>
 			</div>
 			<div>
